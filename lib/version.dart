@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -24,7 +25,7 @@ class Version {
     folder = File("${Platform.environment["APPDATA"]}\\MLauncher\\Versions\\$name");
   }
 
-  factory Version.fromJson(Map<String, dynamic> data) {
+  factory Version.fromReleaseJson(Map<String, dynamic> data) {
     final name = data["name"] as String;
     final assets = data["assets"] as List<dynamic>;
     if (assets.isEmpty) throw Exception("empty assets");
@@ -41,11 +42,72 @@ class Version {
         isBE: name == "",
     );
   }
+
+  factory Version.fromJson(Map<String, dynamic> data) {
+    return Version(
+      name: data['name'],
+      size: data['size'],
+      downloadUri: Uri.parse(data['downloadUri']),
+      createdAt: DateTime.parse(data['createdAt']),
+      body: data['body'],
+      isBE: data['isBE'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'size': size,
+    'downloadUri': downloadUri.toString(),
+    'createdAt': createdAt.toString(),
+    'body': body,
+    'isBE': isBE,
+  };
 }
 
 class VersionLoader {
   static Future<List<Version>> load() async {
-    return await loadGithub();
+    try {
+      var list = await loadGithub();
+      if (!File("${Platform.environment["APPDATA"]}\\MLauncher\\versionList.json").existsSync()) {
+        writeFile(list);
+        return list;
+      } else {
+        var fileList = await loadFile();
+        if (fileList != list) {
+          writeFile(list);
+        }
+      }
+    } on Exception {
+      //do nothing
+    }
+
+    return loadFile();
+  }
+
+  static writeFile(List<Version> list) async {
+    var file = File("${Platform.environment["APPDATA"]}\\MLauncher\\versionList.json");
+    if (!file.existsSync()) {
+      await file.create();
+    }
+
+    file.writeAsBytes(
+        Uint8List.fromList(
+            jsonEncode(
+                list.map(
+                        (e) => jsonEncode(e.toJson())
+                ).toList()
+            ).codeUnits
+        )
+    );
+  }
+
+  static Future<List<Version>> loadFile() async {
+    var file = File("${Platform.environment["APPDATA"]}\\MLauncher\\versionList.json");
+    var bytes = await file.readAsBytes();
+    var list = jsonDecode(String.fromCharCodes(bytes)) as List<dynamic>;
+    return list.map((e) => {
+      Version.fromJson(jsonDecode(e))
+    }).map((e) => e.first).toList();
   }
 
   static Future<List<Version>> loadGithub() async {
@@ -65,7 +127,7 @@ class VersionLoader {
     List<Version> versions = <Version>[];
     jsonArray.forEach((element) {
       try {
-        versions.add(Version.fromJson(element));
+        versions.add(Version.fromReleaseJson(element));
       } on Exception {
         return;
       }
