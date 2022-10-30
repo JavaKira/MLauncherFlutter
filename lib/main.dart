@@ -20,11 +20,23 @@ class App extends StatelessWidget {
   }
 }
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   Sidebar({required this.content, super.key});
 
   Widget content;
 
+  @override
+  State<Sidebar> createState() => _SideBarState();
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _SideBarState extends State<Sidebar> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -36,7 +48,11 @@ class Sidebar extends StatelessWidget {
           child: Column (
             children: [
               TextButton(
-                onPressed: () => {},
+                onPressed: () => {
+                  setState(() => {
+                    widget.content = const HomePage()
+                  })
+                },
                 child: const Icon(
                   Icons.home,
                   color: Colors.white,
@@ -44,7 +60,11 @@ class Sidebar extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => {},
+                onPressed: () => {
+                  setState(() => {
+                    widget.content = const HomePage()
+                  })
+                },
                 child: const Icon(
                   Icons.settings,
                   color: Colors.white,
@@ -55,18 +75,11 @@ class Sidebar extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: content,
+          child: widget.content,
         ),
       ],
     );
   }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
