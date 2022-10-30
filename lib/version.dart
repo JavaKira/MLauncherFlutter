@@ -54,7 +54,7 @@ class VersionLoader {
     versionsList.addAll(
       await readRepositoriesReleases(Uri(scheme: "https", host: "api.github.com", path: "repos/anuken/MindustryBuilds/releases", queryParameters: {"per_page": "100"}))
     );
-    versionsList.sort((a, b) => (1));
+    versionsList.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     versionsList = versionsList.reversed.toList();
     return versionsList;
   }
