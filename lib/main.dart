@@ -190,7 +190,9 @@ class _HomePageState extends State<HomePage> {
                     Align(
                       alignment: Alignment.center,
                       child: TextButton(
-                        onPressed: () => {},
+                        onPressed: () => {
+                          dropdownValue?.launch()
+                        },
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(3),

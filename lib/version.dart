@@ -63,6 +63,10 @@ class Version {
     'isBE': isBE,
   };
 
+  void launch() {
+    Process.run("java", <String>["-jar", "${folder.absolute.path}\\Mindustry.jar"]);
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -76,6 +80,21 @@ class Version {
 
 class VersionLoader {
   static Future<List<Version>> load() async {
+    // try {
+    //   var list = await loadGithub();
+    //   if (!File("${Platform.environment["APPDATA"]}\\MLauncher\\versionList.json").existsSync()) {
+    //     writeFile(list);
+    //     return list;
+    //   } else {
+    //     var fileList = await loadFile();
+    //     if (fileList != list) {
+    //       writeFile(list);
+    //     }
+    //   }
+    // } on Exception {
+    //   //do nothing
+    // }
+
     return loadFile();
   }
 
