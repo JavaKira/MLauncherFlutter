@@ -29,6 +29,13 @@ class Sidebar extends StatefulWidget {
   State<Sidebar> createState() => _SideBarState();
 }
 
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -62,7 +69,7 @@ class _SideBarState extends State<Sidebar> {
               TextButton(
                 onPressed: () => {
                   setState(() => {
-                    widget.content = const HomePage()
+                    widget.content = const SettingsPage()
                   })
                 },
                 child: const Icon(
@@ -78,6 +85,15 @@ class _SideBarState extends State<Sidebar> {
           child: widget.content,
         ),
       ],
+    );
+  }
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+        backgroundColor: Color(0xffE0E0E0),
     );
   }
 }
