@@ -99,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Version? dropdownValue;
+  Version? dropdownValue;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                             future: VersionLoader.load(),
                             builder: (context, snapshot) {
                               if(snapshot.hasData){
-                                dropdownValue = snapshot.data?.first;
+                                dropdownValue ??= snapshot.data?.first;
                                 return DropdownButton<Version>(
                                   value: dropdownValue,
                                   icon: const Icon(Icons.arrow_downward),

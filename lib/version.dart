@@ -62,25 +62,20 @@ class Version {
     'body': body,
     'isBE': isBE,
   };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Version &&
+          runtimeType == other.runtimeType &&
+          name == other.name;
+
+  @override
+  int get hashCode => name.hashCode;
 }
 
 class VersionLoader {
   static Future<List<Version>> load() async {
-    try {
-      var list = await loadGithub();
-      if (!File("${Platform.environment["APPDATA"]}\\MLauncher\\versionList.json").existsSync()) {
-        writeFile(list);
-        return list;
-      } else {
-        var fileList = await loadFile();
-        if (fileList != list) {
-          writeFile(list);
-        }
-      }
-    } on Exception {
-      //do nothing
-    }
-
     return loadFile();
   }
 
