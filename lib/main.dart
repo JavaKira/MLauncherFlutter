@@ -144,6 +144,7 @@ class _HomePageState extends State<HomePage> {
                                   }).toList(),
                                 );
                               } else if(snapshot.hasError) {
+                                print(snapshot.error.toString());
                                 return const SizedBox(
                                   child: Text("error when load versions"),
                                 );

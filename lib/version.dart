@@ -26,8 +26,10 @@ class Version {
 
   factory Version.fromJson(Map<String, dynamic> data) {
     final name = data["name"] as String;
-    final size = data["size"] as int;
-    final downloadUrl = Uri.parse(data["browser_download_url"]);
+    final assets = data["assets"] as List<dynamic>;
+    if (assets.isEmpty) throw Exception("empty assets");
+    final size = assets[0]["size"] as int;
+    final downloadUrl = Uri.parse(assets[0]["browser_download_url"]);
     final createdAt = DateTime.parse(data["created_at"]);
     final body = data["body"];
     return Version(
@@ -62,7 +64,11 @@ class VersionLoader {
     List<dynamic> jsonArray = jsonDecode(response.body);
     List<Version> versions = <Version>[];
     jsonArray.forEach((element) {
-      versions.add(Version.fromJson(element));
+      try {
+        versions.add(Version.fromJson(element));
+      } on Exception {
+        return;
+      }
     });
     return versions;
   }
