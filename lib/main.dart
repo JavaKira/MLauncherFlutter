@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mlauncher_flutter/version.dart';
 
 void main() {
   runApp(const App());
@@ -69,8 +70,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const List<String> versionList = ['1222222222', '22222222222', '3']; //todo
-  String dropdownValue = versionList.last; //todo
+  late Version? dropdownValue;
 
   @override
   Widget build(BuildContext context) {
@@ -121,22 +121,39 @@ class _HomePageState extends State<HomePage> {
                             BoxShadow(color: Color(0xff9ACD32), spreadRadius: 10),
                           ],
                         ),
-                        child: DropdownButton<String>(
-                          value: dropdownValue,
-                          icon: const Icon(Icons.arrow_downward),
-                          elevation: 16,
-                          style: const TextStyle(color: Colors.black),
-                          onChanged: (String? value) {
-                            setState(() {
-                              dropdownValue = value!;
-                            });
-                          },
-                          items: versionList.map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                        child: FutureBuilder(
+                            future: VersionLoader.load(),
+                            builder: (context, snapshot) {
+                              if(snapshot.hasData){
+                                dropdownValue = snapshot.data?.first;
+                                return DropdownButton<Version>(
+                                  value: dropdownValue,
+                                  icon: const Icon(Icons.arrow_downward),
+                                  elevation: 16,
+                                  style: const TextStyle(color: Colors.black),
+                                  onChanged: (Version? value) {
+                                    setState(() {
+                                      dropdownValue = value!;
+                                    });
+                                  },
+                                  items: snapshot.data?.map<DropdownMenuItem<Version>>((Version value) {
+                                    return DropdownMenuItem<Version>(
+                                      value: value,
+                                      child: Text(value.name),
+                                    );
+                                  }).toList(),
+                                );
+                              } else if(snapshot.hasError) {
+                                return const SizedBox(
+                                  child: Text("error when load versions"),
+                                );
+                              }
+
+                              return const SizedBox(
+                                width: 0,
+                                height: 0,
+                              );
+                            }
                         ),
                       )
                     ),
@@ -155,12 +172,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Align(
+                    const Align(
                       alignment: Alignment.centerRight,
-                      child: Container(
+                      child: SizedBox(
                         width: 200,
                         height: 32,
-                        child: const LinearProgressIndicator(
+                        child: LinearProgressIndicator(
                           value: 0.5,
                         ),
                       )
