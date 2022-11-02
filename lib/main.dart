@@ -127,9 +127,28 @@ class _HomePageState extends State<HomePage> {
             width: MediaQuery.of(context).size.width,
             child: Align(
                 alignment: Alignment.center,
-                child: ListView(
-                  children: const [],
-                ),
+                child: FutureBuilder(
+                    future: VersionLoader.load(),
+                    builder: (context, snapshot) {
+                      if(snapshot.hasData){
+                        List<Text> list = <Text>[];
+                        snapshot.data?.forEach((element) {
+                          if (element.isBE) return;
+                          list.add(Text(element.name, style: const TextStyle(fontWeight: FontWeight.bold)));
+                          list.add(Text(element.body));
+                          list.add(const Text("\n"));
+                        });
+                        return ListView(
+                          children: list,
+                        );
+                      } else if(snapshot.hasError) {
+                        return const SizedBox(
+                          child: Text("error when load"),
+                        );
+                      }
+                      return Container();
+                    }
+                )
             ),
           ),
           Container(
