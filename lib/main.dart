@@ -233,7 +233,7 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           child: Builder(builder: (BuildContext context) {
-                              if (dropdownValue == null) return Container();
+                              if (dropdownValue == null) return Container(child: const Text("Select version", style: TextStyle(color: Colors.black)));
                               return Text(!dropdownValue!.isDownloaded ? "Download" : "Launch", style: const TextStyle(color: Colors.black));
                             },
                           ),
