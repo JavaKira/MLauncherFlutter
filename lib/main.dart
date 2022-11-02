@@ -99,6 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _HomePageState extends State<HomePage> {
+  double loadProgress = 0.0;
   Version? dropdownValue;
 
   @override
@@ -191,7 +192,19 @@ class _HomePageState extends State<HomePage> {
                       alignment: Alignment.center,
                       child: TextButton(
                         onPressed: () => {
-                          dropdownValue?.launch()
+                          if (dropdownValue != null) {
+                            !dropdownValue!.isDownloaded ?
+                            dropdownValue?.download(onLoad: (value) => {
+                              setState(() => {
+                                loadProgress += value.length/dropdownValue!.size
+                              })
+                            }, onDone: () => {
+                              setState(() => {
+                                loadProgress = 0
+                              })
+                            }).then((value) => setState(() => {}))
+                                : dropdownValue?.launch()
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -200,18 +213,28 @@ class _HomePageState extends State<HomePage> {
                               BoxShadow(color: Color(0xff9ACD32), spreadRadius: 10),
                             ],
                           ),
-                          child: const Text("Launch", style: TextStyle(color: Colors.black)),
+                          child: Builder(builder: (BuildContext context) {
+                              if (dropdownValue == null) return Container();
+                              return Text(!dropdownValue!.isDownloaded ? "Download" : "Launch", style: const TextStyle(color: Colors.black));
+                            },
+                          ),
                         ),
                       ),
                     ),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerRight,
                       child: SizedBox(
                         width: 200,
                         height: 32,
-                        child: LinearProgressIndicator(
-                          value: 0.5,
-                        ),
+                        child: Builder(builder: (BuildContext context) {
+                          if (loadProgress != 0) {
+                            return LinearProgressIndicator(
+                              value: loadProgress,
+                            );
+                          } else {
+                            return Container();
+                          }
+                        })
                       )
                     ),
                   ],

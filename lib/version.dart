@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -12,7 +13,8 @@ class Version {
   late String body;
   late bool isBE; //todo
 
-  late File folder;
+  late Directory folder;
+  late bool isDownloaded;
 
   Version({
     required this.name,
@@ -22,7 +24,8 @@ class Version {
     required this.body,
     required this.isBE
   }) {
-    folder = File("${Platform.environment["APPDATA"]}\\MLauncher\\Versions\\$name");
+    folder = Directory("${Platform.environment["APPDATA"]}\\MLauncher\\Versions\\$name");
+    isDownloaded = File("${folder.absolute.path}\\Mindustry.jar").existsSync();
   }
 
   factory Version.fromReleaseJson(Map<String, dynamic> data) {
@@ -65,6 +68,22 @@ class Version {
 
   void launch() {
     Process.run("java", <String>["-jar", "${folder.absolute.path}\\Mindustry.jar"]);
+  }
+
+  Future download({required Function(List<int>) onLoad, required Function() onDone}) async {
+    assert(!isDownloaded);
+    var file = File("${folder.absolute.path}\\Mindustry.jar");
+    await folder.create();
+    await file.create();
+    return await HttpClient().getUrl(downloadUri)
+        .then((HttpClientRequest request) => request.close())
+        .then((HttpClientResponse response) =>
+          response.asBroadcastStream())
+        .then((stream) => {
+          stream.listen(onLoad, onDone: () => isDownloaded = true),
+          stream.listen((value) => {}, onDone: onDone),
+          stream.pipe(file.openWrite())
+        });
   }
 
   @override
